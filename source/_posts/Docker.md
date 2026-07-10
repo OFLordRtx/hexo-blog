@@ -3,227 +3,225 @@ abbrlink: ''
 categories:
 - - 运维
 date: '2026-07-10T17:12:23.221450+08:00'
-excerpt: Docker 安装 **### **官方文档  安装：https://docs.docker.com/engine/install/debian/ 发布页：https://github.com/moby/moby/releases  配置 apt 仓库  # 安装依赖  sudo apt update  sudo apt install -y ca-certificates curl  ​  # ...
+excerpt: 安装 官方文档  安装：https://docs.docker.com/engine/install/debian/ 发布页：https://github.com/moby/moby/releases  配置 apt 仓库 # 安装依赖 sudo apt update sudo apt install -y ca-certificates curl  # 创建 keyring 目录 sudo in...
 tags:
 - Docker
 title: Docker
-updated: '2026-07-10T17:12:37.287+08:00'
+updated: '2026-07-10T17:14:08.816+08:00'
 ---
-# Docker
-
 ## 安装
 
-**### **官方文档
+### 官方文档
 
-* **安装：**[https://docs.docker.com/engine/install/debian/](https://docs.docker.com/engine/install/debian/)
-* **发布页：**[https://github.com/moby/moby/releases](https://github.com/moby/moby/releases)
+- 安装：[https://docs.docker.com/engine/install/debian/](https://docs.docker.com/engine/install/debian/)
+- 发布页：[https://github.com/moby/moby/releases](https://github.com/moby/moby/releases)
 
 ### 配置 apt 仓库
 
-```
- # 安装依赖
- sudo apt update
- sudo apt install -y ca-certificates curl
- 
- # 创建 keyring 目录
- sudo install -m 0755 -d /etc/apt/keyrings
- 
- # 添加 GPG 密钥
- sudo curl -fsSL https://download.docker.com/linux/debian/gpg \
-   -o /etc/apt/keyrings/docker.asc
- sudo chmod a+r /etc/apt/keyrings/docker.asc
- 
- # 添加 apt 源
- sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
- Types: deb
- URIs: https://download.docker.com/linux/debian
- Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
- Components: stable
- Architectures: $(dpkg --print-architecture)
- Signed-By: /etc/apt/keyrings/docker.asc
- EOF
- 
- sudo apt update
+```bash
+# 安装依赖
+sudo apt update
+sudo apt install -y ca-certificates curl
+
+# 创建 keyring 目录
+sudo install -m 0755 -d /etc/apt/keyrings
+
+# 添加 GPG 密钥
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg \
+  -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# 添加 apt 源
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
 ```
 
 ### 安装
 
-```
- # 最新版
- sudo apt install -y docker-ce docker-ce-cli containerd.io \
-   docker-buildx-plugin docker-compose-plugin
- 
- # 指定版本（先列出可用版本）
- sudo apt list --all-versions docker-ce
- VERSION_STRING=5:29.5.3-1~debian.12~bookworm
- sudo apt install -y \
-   docker-ce=$VERSION_STRING \
-   docker-ce-cli=$VERSION_STRING \
-   containerd.io docker-buildx-plugin docker-compose-plugin
+```bash
+# 最新版
+sudo apt install -y docker-ce docker-ce-cli containerd.io \
+  docker-buildx-plugin docker-compose-plugin
+
+# 指定版本（先列出可用版本）
+sudo apt list --all-versions docker-ce
+VERSION_STRING=5:29.5.3-1~debian.12~bookworm
+sudo apt install -y \
+  docker-ce=$VERSION_STRING \
+  docker-ce-cli=$VERSION_STRING \
+  containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 ### 启动与验证
 
-```
- sudo systemctl enable docker
- sudo systemctl restart docker
- sudo systemctl status docker
- 
- docker version
- sudo docker run hello-world
+```bash
+sudo systemctl enable docker
+sudo systemctl restart docker
+sudo systemctl status docker
+
+docker version
+sudo docker run hello-world
 ```
 
 ### 非 root 用户免 sudo
 
-```
- sudo usermod -aG docker $USER
- # 重新登录后生效
+```bash
+sudo usermod -aG docker $USER
+# 重新登录后生效
 ```
 
 ### daemon.json 配置
 
-```
- sudo install -d /etc/docker
- 
- sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
- {
-   "log-driver": "json-file",
-   "log-opts": {
-     "max-size": "50m",
-     "max-file": "3"
-   },
-   "live-restore": true,
-   "ipv6": false,
-   "dns": ["1.1.1.1", "8.8.8.8"],
-   "exec-opts": ["native.cgroupdriver=systemd"],
-   "features": {
-     "buildkit": true
-   },
-   "bip": "172.16.0.1/24",
-   "default-address-pools": [
-     {
-       "base": "172.26.0.0/16",
-       "size": 24
-     }
-   ]
- }
- EOF
- 
- sudo systemctl restart docker
- docker info | sed -n '1,80p'
+```bash
+sudo install -d /etc/docker
+
+sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "3"
+  },
+  "live-restore": true,
+  "ipv6": false,
+  "dns": ["1.1.1.1", "8.8.8.8"],
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "features": {
+    "buildkit": true
+  },
+  "bip": "172.16.0.1/24",
+  "default-address-pools": [
+    {
+      "base": "172.26.0.0/16",
+      "size": 24
+    }
+  ]
+}
+EOF
+
+sudo systemctl restart docker
+docker info | sed -n '1,80p'
 ```
 
 ## 容器与镜像基础操作
 
 ### 镜像操作
 
-```
- # 拉取镜像（默认 tag 为 latest）
- docker pull <镜像名>
- docker pull <镜像名>:<版本>
- 
- # 查看本地镜像
- docker images
- 
- # 删除本地镜像（需先删除关联容器）
- docker rmi <镜像名>
- 
- # 查看镜像构建历史
- docker history <镜像名>:<版本>
- 
- # 搜索 Docker Hub
- docker search <关键词>
- 
- # 给镜像打 tag
- docker tag <源镜像>:<源tag> <目标镜像>:<目标tag>
+```bash
+# 拉取镜像（默认 tag 为 latest）
+docker pull <镜像名>
+docker pull <镜像名>:<版本>
+
+# 查看本地镜像
+docker images
+
+# 删除本地镜像（需先删除关联容器）
+docker rmi <镜像名>
+
+# 查看镜像构建历史
+docker history <镜像名>:<版本>
+
+# 搜索 Docker Hub
+docker search <关键词>
+
+# 给镜像打 tag
+docker tag <源镜像>:<源tag> <目标镜像>:<目标tag>
 ```
 
 ### 容器生命周期
 
-```
- # 创建并启动（常用）
- docker run <镜像名>
- 
- # 常用参数组合
- docker run -d \                        # 后台运行
-   --name <容器名> \                    # 指定名称
-   -p <宿主端口>:<容器端口> \           # 端口映射
-   -v <宿主路径>:<容器路径> \           # 挂载目录
-   -e KEY=VALUE \                       # 环境变量
-   --network <网络名> \                 # 指定网络
-   --restart unless-stopped \           # 重启策略
-   <镜像名>
- 
- # 仅创建不启动
- docker create <镜像名>
- 
- # 交互式启动（进入 shell）
- docker run -it <镜像名> /bin/bash
- 
- # 启动已停止的容器
- docker start <容器名/ID>
- 
- # 停止容器（优雅，发送 SIGTERM，默认等待 10s 后强制 SIGKILL）
- docker stop <容器名/ID>
- 
- # 指定等待超时时间
- docker stop -t 30 <容器名/ID>
- 
- # 强制停止（直接 SIGKILL）
- docker kill <容器名/ID>
- 
- # 重启
- docker restart <容器名/ID>
- 
- # 停止后自动删除（临时任务常用）
- docker run --rm <镜像名>
+```bash
+# 创建并启动（常用）
+docker run <镜像名>
+
+# 常用参数组合
+docker run -d \                        # 后台运行
+  --name <容器名> \                    # 指定名称
+  -p <宿主端口>:<容器端口> \           # 端口映射
+  -v <宿主路径>:<容器路径> \           # 挂载目录
+  -e KEY=VALUE \                       # 环境变量
+  --network <网络名> \                 # 指定网络
+  --restart unless-stopped \           # 重启策略
+  <镜像名>
+
+# 仅创建不启动
+docker create <镜像名>
+
+# 交互式启动（进入 shell）
+docker run -it <镜像名> /bin/bash
+
+# 启动已停止的容器
+docker start <容器名/ID>
+
+# 停止容器（优雅，发送 SIGTERM，默认等待 10s 后强制 SIGKILL）
+docker stop <容器名/ID>
+
+# 指定等待超时时间
+docker stop -t 30 <容器名/ID>
+
+# 强制停止（直接 SIGKILL）
+docker kill <容器名/ID>
+
+# 重启
+docker restart <容器名/ID>
+
+# 停止后自动删除（临时任务常用）
+docker run --rm <镜像名>
 ```
 
 ### 容器查看与管理
 
-```
- # 查看运行中的容器
- docker ps
- 
- # 查看所有容器（包含已停止）
- docker ps -a
- 
- # 查看容器/镜像详细信息
- docker inspect <容器名/镜像名>
- 
- # 进入正在运行的容器
- docker exec -it <容器名/ID> /bin/bash
- 
- # 在容器内执行单条命令（不进入交互）
- docker exec <容器名/ID> cat /etc/os-release
- 
- # 查看容器日志
- docker logs <容器名/ID>
- docker logs -f <容器名/ID>          # 持续跟踪
- docker logs --tail 100 <容器名/ID>  # 最后 100 行
- 
- # 查看容器内进程
- docker top <容器名/ID>
- 
- # 查看端口映射
- docker port <容器名/ID>
- 
- # 从宿主机复制文件到容器
- docker cp <本地路径> <容器名>:<容器路径>
- 
- # 从容器复制文件到宿主机
- docker cp <容器名>:<容器路径> <本地路径>
- 
- # 删除已停止的容器
- docker rm <容器名/ID>
- 
- # 强制删除运行中的容器
- docker rm -f <容器名/ID>
+```bash
+# 查看运行中的容器
+docker ps
+
+# 查看所有容器（包含已停止）
+docker ps -a
+
+# 查看容器/镜像详细信息
+docker inspect <容器名/镜像名>
+
+# 进入正在运行的容器
+docker exec -it <容器名/ID> /bin/bash
+
+# 在容器内执行单条命令（不进入交互）
+docker exec <容器名/ID> cat /etc/os-release
+
+# 查看容器日志
+docker logs <容器名/ID>
+docker logs -f <容器名/ID>          # 持续跟踪
+docker logs --tail 100 <容器名/ID>  # 最后 100 行
+
+# 查看容器内进程
+docker top <容器名/ID>
+
+# 查看端口映射
+docker port <容器名/ID>
+
+# 从宿主机复制文件到容器
+docker cp <本地路径> <容器名>:<容器路径>
+
+# 从容器复制文件到宿主机
+docker cp <容器名>:<容器路径> <本地路径>
+
+# 删除已停止的容器
+docker rm <容器名/ID>
+
+# 强制删除运行中的容器
+docker rm -f <容器名/ID>
 ```
 
 ### 镜像导入导出
 
-```
+```bash
 # 导出镜像为 tar 包（保留完整分层信息，推荐离线传输）
 docker save -o <文件名>.tar <镜像名>:<tag>
 
@@ -239,7 +237,7 @@ docker import <文件名>.tar <镜像名>:<tag>
 
 ### 推送镜像到 Docker Hub
 
-```
+```bash
 # 登录
 docker login -u <用户名>
 
@@ -257,7 +255,7 @@ docker logout
 
 ### 完整指令参考
 
-```
+```dockerfile
 # 基础镜像（必须是第一条指令）
 FROM <基础镜像>:<tag>
 # 从零开始构建（无 OS 层，常用于静态二进制）
@@ -323,7 +321,7 @@ HEALTHCHECK NONE  # 禁用健康检查
 
 ### 实用 Dockerfile 示例
 
-```
+```dockerfile
 # 多阶段构建：Go 应用（最终镜像极小）
 FROM golang:1.22-alpine AS builder
 WORKDIR /build
@@ -339,7 +337,7 @@ EXPOSE 8080
 CMD ["./app"]
 ```
 
-```
+```dockerfile
 # Python 应用
 FROM python:3.12-slim
 WORKDIR /app
@@ -352,7 +350,7 @@ CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0"]
 
 ### .dockerignore
 
-```
+```markdown
 # 忽略不需要打包的文件，减少构建上下文体积
 .git
 .gitignore
@@ -365,7 +363,7 @@ node_modules
 
 ### 构建命令
 
-```
+```bash
 # 基本构建
 docker build -t <镜像名>:<tag> <构建目录>
 docker build -t myapp:1.0 .
@@ -382,20 +380,19 @@ docker build --no-cache -t myapp .
 
 ## 数据卷与持久化存储
 
-**Docker 容器的文件系统是临时的，容器删除后数据丢失，通过数据卷实现持久化**
+Docker 容器的文件系统是临时的，容器删除后数据丢失，通过数据卷实现持久化
 
 ### 存储类型对比
 
-
-| **类型**       | **命令形式**                   | **数据位置**                                  | **适用场景**                     |
-| -------------- | ------------------------------ | --------------------------------------------- | -------------------------------- |
-| **volume**     | `-v <卷名>:<容器路径>`         | **Docker 管理（**`/var/lib/docker/volumes/`） | **生产数据持久化（推荐）**       |
-| **bind mount** | `-v <宿主绝对路径>:<容器路径>` | **宿主机指定目录**                            | **挂载配置文件、开发时挂载源码** |
-| **tmpfs**      | `--tmpfs <容器路径>`           | **内存（重启丢失）**                          | **敏感数据临时存储**             |
+| 类型           | 命令形式                       | 数据位置                                  | 适用场景                     |
+| -------------- | ------------------------------ | ----------------------------------------- | ---------------------------- |
+| **volume**     | `-v <卷名>:<容器路径>`         | Docker 管理（`/var/lib/docker/volumes/`） | 生产数据持久化（推荐）       |
+| **bind mount** | `-v <宿主绝对路径>:<容器路径>` | 宿主机指定目录                            | 挂载配置文件、开发时挂载源码 |
+| **tmpfs**      | `--tmpfs <容器路径>`           | 内存（重启丢失）                          | 敏感数据临时存储             |
 
 ### Volume 操作
 
-```
+```bash
 # 创建 volume
 docker volume create <卷名>
 
@@ -414,7 +411,7 @@ docker volume prune
 
 ### 挂载示例
 
-```
+```bash
 # 使用命名 volume（推荐用于数据库等需持久化的场景）
 docker run -d \
   --name postgres \
@@ -437,7 +434,7 @@ docker run -d \
 
 ### 数据备份与恢复
 
-```
+```bash
 # 备份 volume 数据到当前目录
 docker run --rm \
   -v pgdata:/data \
@@ -457,24 +454,23 @@ docker run --rm \
 
 ### 网络类型
 
-```
+```bash
 # 查看所有网络
 docker network ls
 ```
 
+| 网络类型          | 说明                                 | 适用场景              |
+| ----------------- | ------------------------------------ | --------------------- |
+| **bridge**        | 默认网络，容器间通过 IP 通信         | 默认隔离              |
+| **host**          | 共享宿主机网络栈                     | 高性能、减少 NAT 开销 |
+| **none**          | 仅 loopback，完全隔离                | 无网络需求的任务      |
+| **自定义 bridge** | 容器间可用**容器名**作为域名互相访问 | **生产推荐**          |
 
-| **网络类型**      | **说明**                                 | **适用场景**              |
-| ----------------- | ---------------------------------------- | ------------------------- |
-| **bridge**        | **默认网络，容器间通过 IP 通信**         | **默认隔离**              |
-| **host**          | **共享宿主机网络栈**                     | **高性能、减少 NAT 开销** |
-| **none**          | **仅 loopback，完全隔离**                | **无网络需求的任务**      |
-| **自定义 bridge** | **容器间可用****容器名**作为域名互相访问 | **生产推荐**              |
-
-> **自定义 bridge 与默认 bridge 的核心区别：加入同一自定义网络的容器可以直接用****容器名**互相访问（内置 DNS 解析），默认 bridge 只能用 IP
+> 自定义 bridge 与默认 bridge 的核心区别：加入同一自定义网络的容器可以直接用**容器名**互相访问（内置 DNS 解析），默认 bridge 只能用 IP
 
 ### 网络操作
 
-```
+```bash
 # 创建自定义桥接网络
 docker network create <网络名>
 docker network create --driver bridge \
@@ -494,7 +490,7 @@ docker network prune
 
 ### 端口映射
 
-```
+```bash
 # 映射指定端口
 docker run -p <宿主端口>:<容器端口> <镜像>
 
@@ -510,7 +506,7 @@ docker port <容器名/ID>
 
 ### 将容器加入/离开网络
 
-```
+```bash
 # 将已有容器接入网络
 docker network connect <网络名> <容器名/ID>
 
@@ -526,7 +522,7 @@ docker run --network mynet --network-alias db <镜像>
 
 ### 容器间通信示例
 
-```
+```bash
 # 创建网络
 docker network create appnet
 
@@ -545,11 +541,11 @@ docker run -d --name app --network appnet \
 
 ### 官方文档
 
-* [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
+- [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
 
 ### compose.yaml 结构
 
-```
+```yaml
 # compose.yaml（推荐命名，也支持 docker-compose.yml）
 
 services:
@@ -613,7 +609,7 @@ volumes:
 
 ### Compose 常用命令
 
-```
+```bash
 # 启动所有服务（后台运行）
 docker compose up -d
 
@@ -654,7 +650,7 @@ docker compose config
 
 ### .env 文件示例
 
-```
+```bash
 # .env（加入 .gitignore，不要提交到 git）
 DB_NAME=myapp
 DB_USER=appuser
@@ -664,7 +660,7 @@ REDIS_PASSWORD=anothersecret
 
 ### 多环境配置
 
-```
+```bash
 # 使用 override 文件叠加开发配置
 docker compose -f compose.yaml -f compose.dev.yaml up -d
 
@@ -674,9 +670,9 @@ docker compose --env-file .env.prod up -d
 
 ## 资源限制
 
-**防止单个容器耗尽宿主机资源**
+防止单个容器耗尽宿主机资源
 
-```
+```bash
 # 内存限制（超出会被 OOM Kill）
 docker run --memory 512m <镜像>
 docker run --memory 512m --memory-swap 1g <镜像>  # swap 上限，-1 表示不限
@@ -693,7 +689,7 @@ docker stats --no-stream              # 只输出一次，不持续刷新
 
 ### Compose 中设置资源限制
 
-```
+```yaml
 services:
   App:
     image: myapp
@@ -711,7 +707,7 @@ services:
 
 ### 日志管理
 
-```
+```bash
 # 查看容器日志
 docker logs <容器名>
 
@@ -732,15 +728,15 @@ docker logs --since 2024-01-01T00:00:00 <容器名>
 docker logs --since 1h <容器名>   # 最近 1 小时
 ```
 
-**daemon.json 中已配置日志轮转（**`max-size: 50m`，`max-file: 3`），日志文件实际位于：
+daemon.json 中已配置日志轮转（`max-size: 50m`，`max-file: 3`），日志文件实际位于：
 
-```
+```markdown
 /var/lib/docker/containers/<容器ID>/<容器ID>-json.log
 ```
 
 ### 资源监控
 
-```
+```bash
 # 实时监控所有容器资源
 docker stats
 
@@ -754,7 +750,7 @@ docker stats --no-stream --format \
 
 ### 容器状态信息
 
-```
+```bash
 # 查看容器详细信息（JSON）
 docker inspect <容器名>
 
@@ -775,7 +771,7 @@ docker diff <容器名>
 
 ### 日常清理
 
-```
+```bash
 # 删除所有停止的容器
 docker container prune
 
@@ -800,14 +796,14 @@ docker system prune --volumes
 
 ### 查看磁盘占用
 
-```
+```bash
 docker system df
 docker system df -v   # 详细列出每个资源的占用
 ```
 
 ### 升级容器
 
-```
+```bash
 # 单容器
 docker pull <镜像名>:<tag>
 docker stop <容器名>
@@ -821,39 +817,38 @@ docker compose up -d
 
 ## 重启策略详解
 
-**通过 **`--restart` 参数或 Compose 的 `restart` 字段控制容器异常退出后的行为
+通过 `--restart` 参数或 Compose 的 `restart` 字段控制容器异常退出后的行为
 
 ### 策略对比
 
-
-| **策略**         | **说明**                                  | **适用场景**                       |
-| ---------------- | ----------------------------------------- | ---------------------------------- |
-| `no`             | **不自动重启（默认）**                    | **一次性任务、调试**               |
-| `always`         | **总是重启，包括 Docker 服务重启后**      | **需要随 Docker 启动的服务**       |
-| `on-failure[:N]` | **仅在退出码非 0 时重启，可限制次数**     | **允许正常退出、防止无限循环重启** |
-| `unless-stopped` | **总是重启，但手动**`docker stop`后不恢复 | **生产服务推荐**                   |
+| 策略             | 说明                                   | 适用场景                       |
+| ---------------- | -------------------------------------- | ------------------------------ |
+| `no`             | 不自动重启（默认）                     | 一次性任务、调试               |
+| `always`         | 总是重启，包括 Docker 服务重启后       | 需要随 Docker 启动的服务       |
+| `on-failure[:N]` | 仅在退出码非 0 时重启，可限制次数      | 允许正常退出、防止无限循环重启 |
+| `unless-stopped` | 总是重启，但手动`docker stop` 后不恢复 | **生产服务推荐**               |
 
 ### 关键区别
 
 **`always` vs `unless-stopped`**：
 
-* `always`：即使你手动 `docker stop` 了容器，下次 Docker 服务重启（如服务器重启）后，容器依然会被拉起
-* `unless-stopped`：手动 `docker stop` 后，Docker 服务重启也**不会**自动拉起，尊重你的手动操作
+- `always`：即使你手动 `docker stop` 了容器，下次 Docker 服务重启（如服务器重启）后，容器依然会被拉起
+- `unless-stopped`：手动 `docker stop` 后，Docker 服务重启也**不会**自动拉起，尊重你的手动操作
 
-**生产环境推荐 **`unless-stopped`，需要维护时 `docker stop` 后不会被意外恢复
+生产环境推荐 `unless-stopped`，需要维护时 `docker stop` 后不会被意外恢复
 
 **`on-failure`**：
 
-```
+```bash
 # 最多重启 3 次，第 3 次失败后停止尝试
 docker run --restart on-failure:3 <镜像>
 ```
 
-**适合启动脚本、数据库迁移等任务：成功退出（exit 0）不重启，失败时最多重试 N 次**
+适合启动脚本、数据库迁移等任务：成功退出（exit 0）不重启，失败时最多重试 N 次
 
 ### 设置与修改
 
-```
+```bash
 # 运行时指定
 docker run --restart unless-stopped <镜像>
 
@@ -868,11 +863,13 @@ docker inspect --format '{{.HostConfig.RestartPolicy.Name}}' <容器名>
 
 ### 为什么需要健康检查
 
-`depends_on` 默认只等待容器**启动**，不等待服务**就绪** **数据库容器启动后还需要几秒初始化，此时应用容器若已尝试连接会失败** **通过健康检查 + **`condition: service_healthy` 解决此问题
+`depends_on` 默认只等待容器**启动**，不等待服务**就绪**
+数据库容器启动后还需要几秒初始化，此时应用容器若已尝试连接会失败
+通过健康检查 + `condition: service_healthy` 解决此问题
 
 ### Dockerfile 中定义健康检查
 
-```
+```dockerfile
 # 参数说明：
 # --interval    每隔多久检查一次（默认 30s）
 # --timeout     单次检查超时时间（默认 30s）
@@ -893,7 +890,7 @@ HEALTHCHECK NONE
 
 ### Compose 中定义健康检查
 
-```
+```yaml
 services:
   Database:
     image: postgres:16
@@ -921,18 +918,17 @@ services:
         condition: service_healthy
 ```
 
-### depends\_on 条件类型
+### depends_on 条件类型
 
-
-| **条件**                         | **说明**                                                |
-| -------------------------------- | ------------------------------------------------------- |
-| `service_started`                | **默认，仅等待容器启动（不等待就绪）**                  |
-| `service_healthy`                | **等待健康检查通过后才启动当前服务**                    |
-| `service_completed_successfully` | **等待依赖服务正常退出（exit 0），适合 migration 任务** |
+| 条件                             | 说明                                                |
+| -------------------------------- | --------------------------------------------------- |
+| `service_started`                | 默认，仅等待容器启动（不等待就绪）                  |
+| `service_healthy`                | 等待健康检查通过后才启动当前服务                    |
+| `service_completed_successfully` | 等待依赖服务正常退出（exit 0），适合 migration 任务 |
 
 ### 查看健康状态
 
-```
+```bash
 # 查看容器健康状态（STATUS 列会显示 healthy / unhealthy / starting）
 docker ps
 
@@ -942,17 +938,17 @@ docker inspect --format '{{json .State.Health}}' <容器名> | python3 -m json.t
 
 ## 容器时区设置
 
-**容器默认使用 UTC，如果宿主机是 Asia/Shanghai 而容器是 UTC，日志时间会相差 8 小时**
+容器默认使用 UTC，如果宿主机是 Asia/Shanghai 而容器是 UTC，日志时间会相差 8 小时
 
 ### 方法一：环境变量（推荐，适用于大多数镜像）
 
-```
+```bash
 docker run -e TZ=Asia/Shanghai <镜像>
 ```
 
-**Compose：**
+Compose：
 
-```
+```yaml
 services:
   App:
     environment:
@@ -961,16 +957,16 @@ services:
 
 ### 方法二：挂载宿主机时区文件
 
-```
+```bash
 docker run \
   -v /etc/localtime:/etc/localtime:ro \
   -v /etc/timezone:/etc/timezone:ro \
   <镜像>
 ```
 
-**Compose：**
+Compose：
 
-```
+```yaml
 services:
   App:
     volumes:
@@ -980,7 +976,7 @@ services:
 
 ### 方法三：Dockerfile 中固化时区
 
-```
+```dockerfile
 FROM debian:12-slim
 RUN apt update && \
     apt install -y --no-install-recommends tzdata && \
@@ -990,23 +986,23 @@ ENV TZ=Asia/Shanghai
 
 ### 验证
 
-```
+```bash
 docker exec <容器名> date
 # 应输出类似：Wed Jun 11 10:00:00 CST 2025
 ```
 
 ## 私有镜像仓库
 
-**团队内部使用，避免镜像上传到公网，同时加快拉取速度**
+团队内部使用，避免镜像上传到公网，同时加快拉取速度
 
 ### 官方文档
 
-* **Registry：**[https://hub.docker.com/\_/registry](https://hub.docker.com/_/registry)
-* **Harbor（企业级）：**[https://goharbor.io/](https://goharbor.io/)
+- Registry：[https://hub.docker.com/_/registry](https://hub.docker.com/_/registry)
+- Harbor（企业级）：[https://goharbor.io/](https://goharbor.io/)
 
 ### 方案一：官方 Registry（轻量，个人 / 小团队）
 
-```
+```bash
 # 部署
 mkdir -p /opt/Registry
 cat > /opt/Registry/compose.yaml <<'EOF'
@@ -1027,7 +1023,7 @@ cd /opt/Registry
 docker compose up -d
 ```
 
-```
+```bash
 # 推送镜像到私有仓库
 docker tag myapp:1.0 <仓库IP>:5000/myapp:1.0
 docker push <仓库IP>:5000/myapp:1.0
@@ -1036,9 +1032,9 @@ docker push <仓库IP>:5000/myapp:1.0
 docker pull <仓库IP>:5000/myapp:1.0
 ```
 
-**如果仓库没有 HTTPS，需要在客户端的 daemon.json 中添加：**
+如果仓库没有 HTTPS，需要在客户端的 daemon.json 中添加：
 
-```
+```json
 {
   "insecure-registries": ["<仓库IP>:5000"]
 }
@@ -1046,25 +1042,25 @@ docker pull <仓库IP>:5000/myapp:1.0
 
 ### 方案二：Harbor（企业级，含权限管理、漏洞扫描）
 
-**Harbor 功能完整但部署较重，参考官方安装文档：**[https://goharbor.io/docs/latest/install-config/](https://goharbor.io/docs/latest/install-config/)
+Harbor 功能完整但部署较重，参考官方安装文档：[https://goharbor.io/docs/latest/install-config/](https://goharbor.io/docs/latest/install-config/)
 
 ### 登录私有仓库
 
-```
+```bash
 docker login <仓库地址>:<端口> -u <用户名>
 ```
 
 ## 多平台构建 buildx
 
-**用于在 x86 机器上构建 ARM 镜像，或同时发布支持多架构的镜像**
+用于在 x86 机器上构建 ARM 镜像，或同时发布支持多架构的镜像
 
 ### 官方文档
 
-* [https://docs.docker.com/buildx/working-with-buildx/](https://docs.docker.com/buildx/working-with-buildx/)
+- [https://docs.docker.com/buildx/working-with-buildx/](https://docs.docker.com/buildx/working-with-buildx/)
 
 ### 准备工作
 
-```
+```bash
 # 查看当前 builder
 docker buildx ls
 
@@ -1078,7 +1074,7 @@ docker run --privileged --rm tonistiigi/binfmt --install all
 
 ### 构建并推送
 
-```
+```bash
 # 构建多平台镜像并直接推送到仓库
 docker buildx build \
   --platform linux/amd64,linux/arm64,linux/arm/v7 \
@@ -1096,21 +1092,21 @@ docker buildx build \
 
 ### 查看镜像支持的平台
 
-```
+```bash
 docker buildx imagetools inspect <镜像名>:<tag>
 ```
 
 ## Docker Context 远程管理
 
-**不需要 SSH 进入远程服务器，直接在本地用 docker 命令管理远端 Docker**
+不需要 SSH 进入远程服务器，直接在本地用 docker 命令管理远端 Docker
 
 ### 原理
 
-**Docker CLI 通过 Context 切换连接目标，默认连接本机的 **`/var/run/docker.sock`，切换 context 后所有命令都在远端执行
+Docker CLI 通过 Context 切换连接目标，默认连接本机的 `/var/run/docker.sock`，切换 context 后所有命令都在远端执行
 
 ### 创建远程 Context
 
-```
+```bash
 # 通过 SSH 连接远程 Docker（推荐，无需暴露 Docker API 端口）
 docker context create <context名> \
   --docker "host=ssh://root@<远程IP>:<端口>"
@@ -1122,7 +1118,7 @@ docker context create aliyun-gz \
 
 ### 管理 Context
 
-```
+```bash
 # 查看所有 context
 docker context ls
 
@@ -1138,25 +1134,26 @@ docker context rm <context名>
 
 ### 单次使用远程 Context（不切换默认）
 
-```
+```bash
 docker --context aliyun-gz ps
 docker --context aliyun-gz compose up -d
 ```
 
 ### 注意事项
 
-* **使用 SSH context 需要本地能 SSH 免密登录远端（密钥认证）**
-* `docker compose` 命令同样支持 context，但构建时上下文仍在本地，大项目传输慢
+- 使用 SSH context 需要本地能 SSH 免密登录远端（密钥认证）
+- `docker compose` 命令同样支持 context，但构建时上下文仍在本地，大项目传输慢
 
 ## Secrets 管理
 
 ### .env 文件的局限
 
-`.env` 文件中的值会以明文环境变量注入容器，通过 `docker inspect` 可以直接看到所有环境变量值，存在泄漏风险** **Secrets 将敏感数据以文件形式挂载到容器内 `/run/secrets/<secret名>`，不出现在环境变量中
+`.env` 文件中的值会以明文环境变量注入容器，通过 `docker inspect` 可以直接看到所有环境变量值，存在泄漏风险
+Secrets 将敏感数据以文件形式挂载到容器内 `/run/secrets/<secret名>`，不出现在环境变量中
 
 ### Compose secrets 用法
 
-```
+```yaml
 services:
   Database:
     image: postgres:16
@@ -1192,7 +1189,7 @@ networks:
 
 ### 创建 secret 文件
 
-```
+```bash
 mkdir -p ./secrets
 # 写入密码（printf 避免末尾换行）
 printf 'supersecretpassword' > ./secrets/db_password.txt
@@ -1200,24 +1197,24 @@ printf 'sk-xxxxxxxxxxxx' > ./secrets/api_key.txt
 chmod 600 ./secrets/*.txt
 ```
 
-**将 **`secrets/` 目录加入 `.gitignore`：
+将 `secrets/` 目录加入 `.gitignore`：
 
-```
+```markdown
 secrets/
 .env
 ```
 
 ### 在容器内读取 secret
 
-**应用代码读取文件而非环境变量：**
+应用代码读取文件而非环境变量：
 
-```
+```python
 # Python 示例
 with open('/run/secrets/db_password') as f:
     db_password = f.read().strip()
 ```
 
-```
+```go
 // Go 示例
 import "os"
 data, _ := os.ReadFile("/run/secrets/db_password")
@@ -1226,10 +1223,11 @@ dbPassword := string(data)
 
 ### 验证 secret 未暴露在环境变量中
 
+```bash
+# 不会看到密码明文
+docker inspect --format '{{json .Config.Env}}' <容器名>
+
+# secret 以 tmpfs 挂载，仅容器内可读
+docker exec <容器名> cat /run/secrets/db_password
 ```
- # 不会看到密码明文
- docker inspect --format '{{json .Config.Env}}' <容器名>
- 
- # secret 以 tmpfs 挂载，仅容器内可读
- docker exec <容器名> cat /run/secrets/db_password
-```
+
