@@ -1,0 +1,74 @@
+<%
+const documentTitle = page.title
+  ? `${strip_html(page.title)} · ${config.title}`
+  : `${config.title} · ${theme.tagline}`;
+const documentDescription = strip_html(page.description || page.excerpt || config.description || theme.intro)
+  .replace(/\s+/g, ' ')
+  .trim();
+const canonicalUrl = page.permalink || config.url;
+%>
+<!doctype html>
+<html lang="<%= config.language || 'zh-CN' %>">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e9eef2">
+    <title><%= documentTitle %></title>
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    <link rel="icon" href="<%- url_for('/favicon.svg') %>" type="image/svg+xml">
+    <%- meta_generator() %>
+    <%- open_graph({
+      title: page.title || config.title,
+      description: documentDescription,
+      site_name: config.title,
+      twitter_card: 'summary'
+    }) %>
+    <script>
+      try {
+        const storedTheme = localStorage.getItem('orbit-theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = storedTheme || (systemDark ? 'dark' : 'light');
+      } catch (_) {}
+    </script>
+    <%- css('css/orbit.css') %>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">跳到正文</a>
+    <header class="site-header">
+      <a class="brand" href="<%- url_for('/') %>" aria-label="<%= config.title %> 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span>
+        </span>
+        <span class="brand-copy">
+          <strong><%= config.title %></strong>
+          <small>FIELD NOTES</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <nav class="site-nav" aria-label="主导航">
+          <% Object.entries(theme.navigation || {}).forEach(function([label, target]) { %>
+            <a href="<%- url_for(target) %>"<%- is_current(target, target === '/') ? ' aria-current="page"' : '' %>><%= label %></a>
+          <% }); %>
+          <% if (theme.github) { %>
+            <a href="<%= theme.github %>" rel="me external">GitHub</a>
+          <% } %>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="content">
+      <%- body %>
+    </main>
+
+    <footer class="site-footer">
+      <p><span class="status-dot" aria-hidden="true"></span> 持续记录，按需更新。</p>
+      <p>© <%= date(Date.now(), 'YYYY') %> <%= config.author %></p>
+    </footer>
+
+    <%- js({ src: 'js/orbit.js', defer: true }) %>
+  </body>
+</html>

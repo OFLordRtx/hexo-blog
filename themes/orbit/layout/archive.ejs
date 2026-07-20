@@ -1,0 +1,13 @@
+<section class="listing-page">
+  <header class="listing-header">
+    <p class="eyebrow">ARCHIVE / <%= page.year || 'ALL' %></p>
+    <h1>所有记录</h1>
+    <p>按发布日期排列的完整技术笔记。</p>
+  </header>
+  <%- partial('_partial/post-list', { posts: page.posts }) %>
+  <% if (page.total > 1) { %>
+    <nav class="pagination" aria-label="分页">
+      <%- paginator({ prev_text: '← 上一页', next_text: '下一页 →', escape: false }) %>
+    </nav>
+  <% } %>
+</section>

@@ -1,0 +1,8 @@
+<section class="listing-page">
+  <header class="listing-header">
+    <p class="eyebrow">TAG</p>
+    <h1>#<%= page.tag %></h1>
+    <p>带有此标签的全部记录。</p>
+  </header>
+  <%- partial('_partial/post-list', { posts: page.posts }) %>
+</section>

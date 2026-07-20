@@ -1,0 +1,35 @@
+<section class="home-hero" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <p class="eyebrow">OF / TECHNICAL FIELD NOTES</p>
+    <h1 id="hero-title">把系统的<br><em>来龙去脉</em>写清楚。</h1>
+    <p class="hero-intro"><%= theme.intro %></p>
+  </div>
+  <div class="hero-instrument" aria-hidden="true">
+    <span class="instrument-label">SIGNAL / ONLINE</span>
+    <svg viewBox="0 0 240 240" role="img">
+      <circle cx="120" cy="120" r="82"></circle>
+      <circle cx="120" cy="120" r="50"></circle>
+      <path d="M26 120h188M120 26v188"></path>
+      <path class="signal-path" d="M40 155c22-4 31-60 57-60 24 0 31 43 51 43 18 0 24-24 52-28"></path>
+      <circle class="signal-pulse" cx="200" cy="110" r="5"></circle>
+    </svg>
+  </div>
+</section>
+
+<section class="feed-section" aria-labelledby="feed-title">
+  <header class="section-heading">
+    <div>
+      <p class="eyebrow">LATEST TRANSMISSIONS</p>
+      <h2 id="feed-title">最近记录</h2>
+    </div>
+    <a class="text-link" href="<%- url_for('/archives/') %>">查看全部 <span aria-hidden="true">→</span></a>
+  </header>
+
+  <%- partial('_partial/post-list', { posts: page.posts }) %>
+
+  <% if (page.total > 1) { %>
+    <nav class="pagination" aria-label="分页">
+      <%- paginator({ prev_text: '← 上一页', next_text: '下一页 →', escape: false }) %>
+    </nav>
+  <% } %>
+</section>

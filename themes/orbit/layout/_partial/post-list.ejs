@@ -1,0 +1,37 @@
+<div class="signal-list">
+  <% posts.each(function(post) { %>
+    <article class="signal-entry">
+      <div class="signal-node" aria-hidden="true"></div>
+      <div class="signal-meta">
+        <time datetime="<%= date_xml(post.date) %>"><%= date(post.date, 'YYYY.MM.DD') %></time>
+        <% if (post.categories && post.categories.length) { %>
+          <% const category = post.categories.first(); %>
+          <a href="<%- url_for(category.path) %>"><%= category.name %></a>
+        <% } %>
+      </div>
+      <div class="signal-body">
+        <h2><a href="<%- url_for(post.path) %>"><%= post.title %></a></h2>
+        <p><%= truncate(strip_html(post.excerpt || post.content).replace(/\s+/g, ' ').trim(), { length: 132 }) %></p>
+        <% if (post.live_preview) { %>
+          <a class="live-preview" href="<%- url_for(post.path) %>" aria-label="打开 <%= post.title %>">
+            <span class="live-badge"><i aria-hidden="true"></i> LIVE</span>
+            <img
+              src="<%= post.live_preview %>"
+              alt="<%= post.title %> 实时画面"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+            >
+          </a>
+        <% } %>
+        <% if (post.tags && post.tags.length) { %>
+          <ul class="tag-list" aria-label="文章标签">
+            <% post.tags.each(function(tag) { %>
+              <li><a href="<%- url_for(tag.path) %>">#<%= tag.name %></a></li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </div>
+    </article>
+  <% }); %>
+</div>

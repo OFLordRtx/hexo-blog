@@ -1,0 +1,8 @@
+<section class="listing-page">
+  <header class="listing-header">
+    <p class="eyebrow">CATEGORY</p>
+    <h1><%= page.category %></h1>
+    <p>归入此分类的全部记录。</p>
+  </header>
+  <%- partial('_partial/post-list', { posts: page.posts }) %>
+</section>
